@@ -24,8 +24,15 @@ class TestARDMediathek(unittest.TestCase):
 		broadcasts = program.get_broadcasts()
 		print("done")
 		self.assertGreater(len(broadcasts), 0)
+		
+		print("Getting broadcast by valid ID ...")
+		self.assertTrue(ardmediathek.get_broadcast("Y3JpZDovL25kci5kZS80NV8yMDA4LTA0LTA2LTAzLTUx").title)
+		print("done")
+		print("Getting broadcast by invalid ID ...")
+		with self.assertRaises(AssertionError):
+			ardmediathek.get_broadcast("Y3JpZDovL25kci5kZS80NV8yMDA4LTA0LTA2LTAzLTUx000")
+		print("done")
 
 if __name__ == "__main__":
-	sys.stdout = sys.__stdout__
 	unittest.main()
 

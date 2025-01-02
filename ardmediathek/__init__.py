@@ -6,6 +6,7 @@ import requests_cache
 
 from . import urls, utils
 from .program import Program
+from .broadcast import Broadcast
 
 requests_cache_backend = requests_cache.backends.filesystem.FileCache("~/.cache/ardmediathek-api/", )
 requests_cache.install_cache("ardmediathek", backend=requests_cache_backend)
@@ -38,4 +39,7 @@ def get_programs():
 
 def get_program(id):
 	return Program(utils.get_json(urls.make_grouping_url(id)))
+
+def get_broadcast(id):
+	return Broadcast(utils.get_json(urls.make_item_url(id))["widgets"][0])
 

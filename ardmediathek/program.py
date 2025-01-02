@@ -33,6 +33,7 @@ class Program:
 		
 		new_broadcasts = []
 		for broadcast in broadcasts:
+			print(broadcast["links"]["target"]["href"])
 			new_broadcast = Broadcast(utils.get_json(broadcast["links"]["target"]["href"])["widgets"][0])
 			new_broadcasts.append(new_broadcast)
 		
