@@ -1,15 +1,14 @@
 # -*- coding: utf-8 -*-
 
 import math
+from urllib.parse import urlparse
+
 import requests
-import requests_cache
 
 from . import urls, utils
 from .program import Program
 from .broadcast import Broadcast
-
-requests_cache_backend = requests_cache.backends.filesystem.FileCache("~/.cache/ardmediathek-api/", )
-requests_cache.install_cache("ardmediathek", backend=requests_cache_backend)
+from . import exceptions
 
 def get_programs():
 	programs_info = utils.get_json(urls.PROGRAMS_A_TO_Z)
@@ -37,9 +36,44 @@ def get_programs():
 	
 	return new_programs
 
+def get_program_api_url(id):
+	return urls.make_grouping_url(id)
+
 def get_program(id):
-	return Program(utils.get_json(urls.make_grouping_url(id)))
+	try:
+		json = utils.get_json(get_program_api_url(id))
+	except requests.exceptions.HTTPError as e:
+		if e.response.status_code == 400:
+			raise exceptions.InvalidProgramIDException(id=id)
+		else:
+			raise e
+	
+	return Program(json)
+
+def get_broadcast_api_url(id):
+	return urls.make_item_url(id)
 
 def get_broadcast(id):
-	return Broadcast(utils.get_json(urls.make_item_url(id))["widgets"][0])
+	try:
+		json = utils.get_json(get_broadcast_api_url(id))
+	except requests.exceptions.HTTPError as e:
+		if e.response.status_code == 400:
+			raise exceptions.InvalidBroadcastIDException(id=id)
+		else:
+			raise e
+	return Broadcast(json["widgets"][0])
+
+def get_id_from_url(url):
+	url_parts = urlparse(url)
+	path_parts = list(filter(None, url_parts.path.split("/")))
+	if path_parts[0] == "video":
+		return "broadcast", path_parts[4]
+	else:
+		return "program", path_parts[2]
+
+def get_quality_name(quality):
+	if quality < 0 or quality > 4:
+		return "UNKNOWN"
+	quality_names = ["HVGA", "VGA", "DVGA", "HD", "FHD"]
+	return quality_names[quality]
 

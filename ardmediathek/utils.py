@@ -1,10 +1,13 @@
 #-*- coding:utf-8 -*-
 
-import requests
+import requests_cache
+
+__requests_cache_backend = requests_cache.backends.filesystem.FileCache("~/.cache/ardmediathek-api/")
 
 def get_json(url):
-	r = requests.get(url)
-	assert r.ok, f"Could not download API JSON from {url}: error {r.status_code}"
+	with requests_cache.session.CachedSession(backend=__requests_cache_backend) as session:
+		r = session.get(url)
+		r.raise_for_status()
 	
 	return r.json()
 

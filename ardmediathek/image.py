@@ -1,5 +1,6 @@
 #-*- coding:utf-8 -*-
 
+import copy
 import io
 import os
 import requests
@@ -21,4 +22,9 @@ class Image:
 					buf.write(chunk)
 				buf.seek(0)
 				return Image.open(io.BytesIO(buffer.read()))
+	
+	def json(self):
+		d = copy.copy(self.__dict__)
+		return d
+
 
